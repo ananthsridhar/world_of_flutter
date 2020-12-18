@@ -14,6 +14,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       title: 'Whats my Superhero Name?!',
       home: RandomSuperoName(),
+      theme: ThemeData(primaryColor: Colors.black),
     );
   }
 }
