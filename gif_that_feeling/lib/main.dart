@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 void main() {
   runApp(MyApp());
@@ -39,8 +40,12 @@ class MainContainer extends StatelessWidget {
     return SafeArea(
         child: Scaffold(
             body: Column(
-      children: <Widget>[titleSection, ParentContainer()],
+      children: <Widget>[
+        titleSection,
+        Expanded(flex: 5, child: ParentContainer())
+      ],
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
     )));
   }
 }
@@ -51,10 +56,12 @@ class ParentContainer extends StatefulWidget {
 }
 
 class _ParentContainerState extends State<ParentContainer> {
-  String _searchText = 'Sample';
+  String _searchText = '';
+  bool _loading = false;
 
   void _onSearched(String value) {
     setState(() {
+      _loading = true;
       _searchText = value;
     });
   }
@@ -62,18 +69,23 @@ class _ParentContainerState extends State<ParentContainer> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Column(children: <Widget>[
-      Padding(
-          child: TextField(
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Whatcha Feeling ? ',
+    return Column(
+      children: <Widget>[
+        Padding(
+            child: TextField(
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Whatcha Feeling ? ',
+              ),
+              onSubmitted: _onSearched,
             ),
-            onSubmitted: _onSearched,
-          ),
-          padding: EdgeInsets.all(10.0)),
-      Text(_searchText)
-    ]);
+            padding: EdgeInsets.all(10.0)),
+        Text(_searchText),
+        _loading ? loadingSpinner : Center(child: Text('Waiting For Search'))
+        // : GifDisplay()
+      ],
+      // mainAxisAlignment: MainAxisAlignment.start,
+    );
   }
 }
 
@@ -83,12 +95,56 @@ Widget titleSection = Row(
   mainAxisAlignment: MainAxisAlignment.spaceAround,
 );
 
-Widget searchBox = TextField(
-  decoration: InputDecoration(
-    border: OutlineInputBorder(),
-    labelText: 'Whatcha Feeling ? ',
-  ),
-);
+Widget loadingSpinner =
+    Container(child: Center(child: CircularProgressIndicator()));
+
+class GifDisplay extends StatelessWidget {
+  GifDisplay({this.gifList});
+
+  final List gifList;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+        primary: false,
+        padding: const EdgeInsets.all(20),
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        crossAxisCount: 2,
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: const Text("He'd have you all unravel at the"),
+            color: Colors.teal[100],
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: const Text('Heed not the rabble'),
+            color: Colors.teal[200],
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: const Text('Sound of screams but the'),
+            color: Colors.teal[300],
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: const Text('Who scream'),
+            color: Colors.teal[400],
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: const Text('Revolution is coming...'),
+            color: Colors.teal[500],
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: const Text('Revolution, they...'),
+            color: Colors.teal[600],
+          ),
+        ]);
+  }
+}
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
