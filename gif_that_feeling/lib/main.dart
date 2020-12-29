@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MyApp());
@@ -59,11 +63,42 @@ class _ParentContainerState extends State<ParentContainer> {
   String _searchText = '';
   bool _loading = false;
 
-  void _onSearched(String value) {
+  var _gifLinks;
+  String search_url;
+
+  void _onSearched(String value) async {
+    // setState(() {
+    //   _loading = true;
+    // });
+    final gifs = await fetchGifs(value);
+    log(gifs.length.toString());
     setState(() {
-      _loading = true;
+      _loading = false;
       _searchText = value;
+      _gifLinks = gifs;
     });
+  }
+
+  Future<dynamic> fetchGifs(value) async {
+    search_url = "https://api.tenor.com/v1/search?q=" +
+        value +
+        "&key=" +
+        "O9Y286B6LV83" +
+        "&limit=20";
+    List<String> links = new List<String>();
+    log(search_url);
+    final response = await http.get(search_url);
+    if (response.statusCode == 200 && response.body != null) {
+      var body = jsonDecode(response.body);
+      body['results'].forEach((e) {
+        Map<dynamic, dynamic> newMap = Map<dynamic, dynamic>.from(e);
+        var media = newMap['media'];
+        links.add(media[0]['gif']['url']);
+      });
+      return links;
+    } else {
+      throw Exception('Failed to loasd');
+    }
   }
 
   @override
@@ -83,7 +118,7 @@ class _ParentContainerState extends State<ParentContainer> {
         Text(_searchText),
         _loading
             ? loadingSpinner //: Center(child: Text('Waiting For Search'))
-            : GifDisplay()
+            : GifDisplay(gifList: this._gifLinks)
       ],
       // mainAxisAlignment: MainAxisAlignment.start,
     );
@@ -100,51 +135,65 @@ Widget loadingSpinner =
     Container(child: Center(child: CircularProgressIndicator()));
 
 class GifDisplay extends StatelessWidget {
-  GifDisplay();
+  GifDisplay({this.gifList});
 
-  final List gifList = <Widget>[
-    Container(
-      padding: const EdgeInsets.all(8),
-      child: const Text("He'd have you all unravel at the"),
-      color: Colors.teal[100],
-    ),
-    Container(
-      padding: const EdgeInsets.all(8),
-      child: const Text('Heed not the rabble'),
-      color: Colors.teal[200],
-    ),
-    Container(
-      padding: const EdgeInsets.all(8),
-      child: const Text('Sound of screams but the'),
-      color: Colors.teal[300],
-    ),
-    Container(
-      padding: const EdgeInsets.all(8),
-      child: const Text('Who scream'),
-      color: Colors.teal[400],
-    ),
-    Container(
-      padding: const EdgeInsets.all(8),
-      child: const Text('Revolution is coming...'),
-      color: Colors.teal[500],
-    ),
-    Container(
-      padding: const EdgeInsets.all(8),
-      child: const Text('Revolution, they...'),
-      color: Colors.teal[600],
-    ),
-  ];
+  List gifList;
+  // final List gifList = <Widget>[
+  //   Container(
+  //     padding: const EdgeInsets.all(8),
+  //     child: const Text("He'd have you all unravel at the"),
+  //     color: Colors.teal[100],
+  //   ),
+  //   Container(
+  //     padding: const EdgeInsets.all(8),
+  //     child: const Text('Heed not the rabble'),
+  //     color: Colors.teal[200],
+  //   ),
+  //   Container(
+  //     padding: const EdgeInsets.all(8),
+  //     child: const Text('Sound of screams but the'),
+  //     color: Colors.teal[300],
+  //   ),
+  //   Container(
+  //     padding: const EdgeInsets.all(8),
+  //     child: const Text('Who scream'),
+  //     color: Colors.teal[400],
+  //   ),
+  //   Container(
+  //     padding: const EdgeInsets.all(8),
+  //     child: const Text('Revolution is coming...'),
+  //     color: Colors.teal[500],
+  //   ),
+  //   Container(
+  //     padding: const EdgeInsets.all(8),
+  //     child: const Text('Revolution, they...'),
+  //     color: Colors.teal[600],
+  //   ),
+  // ];
 
   @override
   Widget build(BuildContext context) {
+    log("Gif Display called with " +
+        (this.gifList == null ? '0' : this.gifList.length.toString()));
     return GridView.builder(
       gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisSpacing: 10, mainAxisSpacing: 10, crossAxisCount: 2),
       padding: const EdgeInsets.all(20),
       shrinkWrap: true,
-      itemCount: this.gifList.length,
+      itemCount: this.gifList == null ? 0 : this.gifList.length,
       itemBuilder: (BuildContext context, int index) {
-        return this.gifList[index];
+        // log(this.gifList[index].toString());
+        var image;
+        try {
+          if (index < gifList.length) {
+            image = Image.network(this.gifList[index].toString());
+          } else {
+            image = Image.network('https://picsum.photos/250?image=9');
+          }
+        } catch (e) {
+          log(e);
+        }
+        return image;
       },
     );
   }
