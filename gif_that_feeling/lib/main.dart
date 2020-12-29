@@ -81,8 +81,9 @@ class _ParentContainerState extends State<ParentContainer> {
             ),
             padding: EdgeInsets.all(10.0)),
         Text(_searchText),
-        _loading ? loadingSpinner : Center(child: Text('Waiting For Search'))
-        // : GifDisplay()
+        _loading
+            ? loadingSpinner //: Center(child: Text('Waiting For Search'))
+            : GifDisplay()
       ],
       // mainAxisAlignment: MainAxisAlignment.start,
     );
@@ -99,50 +100,53 @@ Widget loadingSpinner =
     Container(child: Center(child: CircularProgressIndicator()));
 
 class GifDisplay extends StatelessWidget {
-  GifDisplay({this.gifList});
+  GifDisplay();
 
-  final List gifList;
+  final List gifList = <Widget>[
+    Container(
+      padding: const EdgeInsets.all(8),
+      child: const Text("He'd have you all unravel at the"),
+      color: Colors.teal[100],
+    ),
+    Container(
+      padding: const EdgeInsets.all(8),
+      child: const Text('Heed not the rabble'),
+      color: Colors.teal[200],
+    ),
+    Container(
+      padding: const EdgeInsets.all(8),
+      child: const Text('Sound of screams but the'),
+      color: Colors.teal[300],
+    ),
+    Container(
+      padding: const EdgeInsets.all(8),
+      child: const Text('Who scream'),
+      color: Colors.teal[400],
+    ),
+    Container(
+      padding: const EdgeInsets.all(8),
+      child: const Text('Revolution is coming...'),
+      color: Colors.teal[500],
+    ),
+    Container(
+      padding: const EdgeInsets.all(8),
+      child: const Text('Revolution, they...'),
+      color: Colors.teal[600],
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-        primary: false,
-        padding: const EdgeInsets.all(20),
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        crossAxisCount: 2,
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: const Text("He'd have you all unravel at the"),
-            color: Colors.teal[100],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: const Text('Heed not the rabble'),
-            color: Colors.teal[200],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: const Text('Sound of screams but the'),
-            color: Colors.teal[300],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: const Text('Who scream'),
-            color: Colors.teal[400],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: const Text('Revolution is coming...'),
-            color: Colors.teal[500],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: const Text('Revolution, they...'),
-            color: Colors.teal[600],
-          ),
-        ]);
+    return GridView.builder(
+      gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisSpacing: 10, mainAxisSpacing: 10, crossAxisCount: 2),
+      padding: const EdgeInsets.all(20),
+      shrinkWrap: true,
+      itemCount: this.gifList.length,
+      itemBuilder: (BuildContext context, int index) {
+        return this.gifList[index];
+      },
+    );
   }
 }
 
